@@ -17,81 +17,85 @@ import java.util.stream.Collectors;
 
 public class FunctionalTexasCities
 {
-	static final String INPUT_FILE_NAME = "src/cities/L02a Cityname_wo_headers.csv";
+	static final String INPUT_FILE_NAME = "L02a Cityname_wo_headers.csv";
 	static final String OUTPUT_FILE_NAME = "L02a_Functional_Output.txt";
-	
+
 	public static void main(String[] args) throws FileNotFoundException, IOException
 	{
+		//-----Get Data-----
 		ArrayList<texasCitiesClass> texasCities = new ArrayList<>();
-
 		populateListsFromFile(texasCities);
 		
-		ArrayList<String> counties = texasCities.stream()
-				.map(city -> city.getCounty())
-				.distinct()
-				.sorted()
-				.collect(Collectors.toCollection(ArrayList::new));
-		
+		//-----Write First Column-----
 		BufferedWriter bWriter = new BufferedWriter(new FileWriter(OUTPUT_FILE_NAME));
 		bWriter.write("County name\tNo. Cities\tTotal Pop\tAve Pop\tLargest City\tPopulation");
 		bWriter.newLine();
 		
-		counties.stream()
-				.forEach(county -> {
-					try {
-						bWriter.write(county);
-						
-						bWriter.write("\t");
-						
-						bWriter.write(String.valueOf(texasCities.stream()
-								.filter(city -> city.getCounty().equals(county))
-								.count()));
-						
-						bWriter.write("\t");
-						
-						bWriter.write(NumberFormat.getNumberInstance(Locale.US).format(
-								texasCities.stream()
-								.filter(city -> city.getCounty().equals(county))
-								.mapToInt(city -> city.getPopulation())
-								.sum()));
-						
-						bWriter.write("\t");
-						
-						bWriter.write(NumberFormat.getNumberInstance(Locale.US).format(
-								(int) texasCities.stream()
-								.filter(city -> city.getCounty().equals(county))
-								.mapToInt(city -> city.getPopulation())
-								.average()
-								.getAsDouble()));
-						
-						bWriter.write("\t");
-						
-						bWriter.write(texasCities.stream()
-								.filter(city -> city.getCounty().equals(county))
-								.max(Comparator.comparing(city -> city.getPopulation()))
-								.get()
-								.getName());
-						
-						bWriter.write("\t");
-						
-						bWriter.write(NumberFormat.getNumberInstance(Locale.US).format(
-								texasCities.stream()
-								.filter(city -> city.getCounty().equals(county))
-								.mapToInt(city -> city.getPopulation())
-								.max()
-								.getAsInt()));
-						
-						bWriter.newLine();
-					}
-					catch (IOException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					}
+		texasCities.stream()
+					.map(city -> city.getCounty())
+					.distinct()
+					.sorted()
+					.forEach(county -> { //Go though each distinct county in alphabetical order
+						try {
+							//-----County Name-----
+							bWriter.write(county);
+							
+							bWriter.write("\t");
+							
+							//-----Number of Cities in County-----
+							bWriter.write(String.valueOf(texasCities.stream()
+									.filter(city -> city.getCounty().equals(county))
+									.count()));
+							
+							bWriter.write("\t");
+							
+							//-----Total Population of all Cities in County-----
+							bWriter.write(NumberFormat.getNumberInstance(Locale.US).format(
+									texasCities.stream()
+									.filter(city -> city.getCounty().equals(county))
+									.mapToInt(city -> city.getPopulation())
+									.sum()));
+							
+							bWriter.write("\t");
+							
+							//-----Average Population of all Cities in County-----
+							bWriter.write(NumberFormat.getNumberInstance(Locale.US).format(
+									(int) texasCities.stream()
+									.filter(city -> city.getCounty().equals(county))
+									.mapToInt(city -> city.getPopulation())
+									.average()
+									.getAsDouble()));
+							
+							bWriter.write("\t");
+							
+							//-----Largest City in County-----
+							bWriter.write(texasCities.stream()
+									.filter(city -> city.getCounty().equals(county))
+									.max(Comparator.comparing(city -> city.getPopulation()))
+									.get()
+									.getName());
+							
+							bWriter.write("\t");
+							
+							//-----Population of Largest City in County-----
+							bWriter.write(NumberFormat.getNumberInstance(Locale.US).format(
+									texasCities.stream()
+									.filter(city -> city.getCounty().equals(county))
+									.mapToInt(city -> city.getPopulation())
+									.max()
+									.getAsInt()));
+							
+							bWriter.newLine();
+						}
+						catch (IOException e) {
+							e.printStackTrace();
+						}
 					});
 		bWriter.close();
 		
 	}
 	
+	//Gets data from a .csv file about texas cities and puts it into an ArrayList
 	static void populateListsFromFile(ArrayList<texasCitiesClass> texasCities) throws FileNotFoundException, IOException
 	{
 		String[] values;
@@ -101,7 +105,10 @@ public class FunctionalTexasCities
 		while((line = bReader.readLine()) != null)
 		{
 			values = line.split(",");
-			texasCities.add(new texasCitiesClass(values[0], values[1], Integer.parseInt(values[2])));
+			texasCities.add(new texasCitiesClass(values[0], //city name
+												 values[1], //county name
+												 Integer.parseInt(values[2]) //population
+												 ));
 		}
 		
 		bReader.close();
