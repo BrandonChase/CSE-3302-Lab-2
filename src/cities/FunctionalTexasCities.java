@@ -13,7 +13,6 @@ import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.Locale;
-import java.util.stream.Collectors;
 
 public class FunctionalTexasCities
 {
